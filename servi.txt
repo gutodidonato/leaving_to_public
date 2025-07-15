@@ -4,11 +4,12 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const path = require('path');
+const https = require('https');
+const fs = require('fs');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
-// CORS
 app.use(cors({
   credentials: true,
   origin: [
@@ -19,16 +20,15 @@ app.use(cors({
   methods: ["POST", "GET"],
 }));
 
-// Middlewares
 app.use(cookieParser());
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Rotas
 app.use('/', require('./routes/routes'));
 
-// Inicialização
-app.listen(port, () => {
-  console.log(`Servidor rodando na porta ${port}`);
+https.createServer({
+  cert: fs.readFileSync('./SSL/certificado.crt'),
+  key: fs.readFileSync('./SSL/chave-privada.key')
+}, app).listen(port, () => {
+  console.log("Running now!");
 });
